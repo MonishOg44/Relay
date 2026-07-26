@@ -55,8 +55,10 @@ export const StaggeredMenu = ({
       }
       preLayerElsRef.current = preLayers;
 
-      const offscreen = position === 'left' ? -100 : 100;
-      gsap.set([panel, ...preLayers], { xPercent: offscreen, opacity: 1, visibility: 'hidden' });
+      if (!openRef.current) {
+        const offscreen = position === 'left' ? -100 : 100;
+        gsap.set([panel, ...preLayers], { xPercent: offscreen, opacity: 1, visibility: 'hidden' });
+      }
       if (preContainer) {
         gsap.set(preContainer, { xPercent: 0, opacity: 1 });
       }
@@ -100,7 +102,7 @@ export const StaggeredMenu = ({
     }
 
     const tl = gsap.timeline({ paused: true });
-    tl.set([panel, ...layers], { visibility: 'visible', opacity: 1 }, 0);
+    tl.set([panel, ...layers], { visibility: 'visible', display: 'flex', opacity: 1 }, 0);
 
     layerStates.forEach((ls, i) => {
       tl.fromTo(ls.el, { xPercent: ls.start, opacity: 1 }, { xPercent: 0, opacity: 1, duration: 0.5, ease: 'power4.out' }, i * 0.07);
@@ -169,6 +171,9 @@ export const StaggeredMenu = ({
   const playOpen = useCallback(() => {
     if (busyRef.current) return;
     busyRef.current = true;
+    if (panelRef.current) {
+      gsap.set(panelRef.current, { display: 'flex', visibility: 'visible' });
+    }
     const tl = buildOpenTimeline();
     if (tl) {
       tl.eventCallback('onComplete', () => {
@@ -331,17 +336,15 @@ export const StaggeredMenu = ({
   }, [externalIsOpen, playOpen, closeMenu, animateIcon, animateColor, animateText, onMenuOpen]);
 
   React.useEffect(() => {
-    const handleResizeOrHide = () => {
-      if (openRef.current) {
+    const handleHide = () => {
+      if (document.visibilityState === 'hidden' && openRef.current) {
         closeMenu();
       }
     };
 
-    document.addEventListener('visibilitychange', handleResizeOrHide);
-    window.addEventListener('resize', handleResizeOrHide);
+    document.addEventListener('visibilitychange', handleHide);
     return () => {
-      document.removeEventListener('visibilitychange', handleResizeOrHide);
-      window.removeEventListener('resize', handleResizeOrHide);
+      document.removeEventListener('visibilitychange', handleHide);
     };
   }, [closeMenu]);
 
@@ -349,6 +352,16 @@ export const StaggeredMenu = ({
     if (!closeOnClickAway || !open) return;
 
     const handleClickOutside = event => {
+      if (
+        event.target &&
+        event.target.closest &&
+        (event.target.closest('.modal-overlay') ||
+         event.target.closest('.modal-card') ||
+         event.target.closest('[class*="modal"]'))
+      ) {
+        return;
+      }
+
       if (
         panelRef.current &&
         !panelRef.current.contains(event.target) &&
@@ -360,8 +373,10 @@ export const StaggeredMenu = ({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [closeOnClickAway, open, closeMenu]);
 
@@ -437,7 +452,6 @@ export const StaggeredMenu = ({
                       className="sm-panel-item"
                       onClick={() => {
                         it.onClick();
-                        closeMenu();
                       }}
                     >
                       <span className="sm-panel-itemLabel">{it.label}</span>

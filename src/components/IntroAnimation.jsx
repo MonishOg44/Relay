@@ -70,32 +70,35 @@ export default function IntroAnimation({ onComplete }) {
               whiteSpace: 'nowrap',
             }}
           >
-            {/* Single Line: Relay Script Font + for [Device] */}
+            {/* Stacked Logo for better visual centering */}
             <div
               style={{
                 display: 'flex',
-                alignItems: 'baseline',
+                flexDirection: 'column',
+                alignItems: 'center',
                 justifyContent: 'center',
-                gap: '12px',
+                gap: '8px',
               }}
             >
               <span
                 className="relay-brand-script"
                 style={{
-                  fontSize: '56px',
+                  fontSize: '72px',
                   color: isLight ? '#000000' : '#ffffff',
                   lineHeight: 1,
+                  paddingRight: '12px' // offset cursive slant visually
                 }}
               >
                 Relay
               </span>
               <span
                 style={{
-                  fontSize: '40px',
+                  fontSize: '24px',
                   fontWeight: 800,
                   color: isLight ? '#000000' : '#ffffff',
-                  letterSpacing: '-0.6px',
+                  letterSpacing: '0px',
                   lineHeight: 1,
+                  opacity: 0.9,
                 }}
               >
                 for {deviceType}

@@ -954,6 +954,7 @@ body {
     width: 100% !important;
     min-width: 0 !important;
     height: 100% !important;
+    border-right: none !important;
   }
 
   .app-shell.no-active-chat .chat-panel {

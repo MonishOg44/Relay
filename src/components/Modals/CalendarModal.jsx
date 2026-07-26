@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { useVoiceCall } from '../../context/VoiceCallContext';
+import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
 
 export default function CalendarModal({ onClose }) {
   const { profile } = useAuth();
@@ -29,41 +30,8 @@ export default function CalendarModal({ onClose }) {
   const [activeFilter, setActiveFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const storageKey = profile?.id ? `relay_calendar_events_${profile.id}` : 'relay_calendar_events';
-
-  const [events, setEvents] = useState(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // fallback
-      }
-    }
-    const todayStr = new Date().toISOString().split('T')[0];
-    return [
-      {
-        id: '1',
-        dateStr: todayStr,
-        title: 'Relay Voice Sync Call',
-        time: '10:00 AM',
-        duration: '30m',
-        type: 'Call',
-        host: 'Alex Vance',
-        contactId: users[0]?.id || '',
-      },
-      {
-        id: '2',
-        dateStr: todayStr,
-        title: 'Product Architecture Review',
-        time: '02:30 PM',
-        duration: '45m',
-        type: 'Meeting',
-        host: 'Sarah Chen',
-        contactId: users[1]?.id || '',
-      },
-    ];
-  });
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Form State
   const [newTitle, setNewTitle] = useState('');
@@ -72,9 +40,36 @@ export default function CalendarModal({ onClose }) {
   const [newDuration, setNewDuration] = useState('30m');
   const [selectedContactId, setSelectedContactId] = useState(users[0]?.id || '');
 
+  const fetchEvents = async () => {
+    if (!profile?.id || !isSupabaseConfigured) return;
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .select('*')
+      .eq('user_id', profile.id)
+      .order('time_str', { ascending: true });
+    
+    if (data && !error) {
+      // Map back to expected properties
+      const mapped = data.map(d => ({
+        id: d.id,
+        dateStr: d.date_str,
+        title: d.title,
+        time: d.time_str,
+        duration: d.duration_str,
+        type: d.event_type,
+        host: d.host_name,
+        contactId: d.contact_id,
+        contactName: d.contact_name
+      }));
+      setEvents(mapped);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(events));
-  }, [events, storageKey]);
+    fetchEvents();
+  }, [profile?.id]);
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -119,30 +114,51 @@ export default function CalendarModal({ onClose }) {
 
   const selectedDateStr = formatSelectedDateStr(selectedDay);
 
-  const handleAddEvent = (e) => {
+  const handleAddEvent = async (e) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || !profile?.id) return;
 
     const contactObj = users.find((u) => u.id === selectedContactId);
-    const newEv = {
-      id: Date.now().toString(),
-      dateStr: selectedDateStr,
-      title: newTitle.trim(),
-      time: newTime,
-      duration: newDuration,
-      type: newType,
-      host: profile?.username || 'You',
-      contactId: selectedContactId,
-      contactName: contactObj ? contactObj.username : 'Contact',
-    };
+    const hostName = profile?.username || 'You';
+    const contactName = contactObj ? contactObj.username : 'Contact';
+    
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('calendar_events').insert([{
+        user_id: profile.id,
+        title: newTitle.trim(),
+        date_str: selectedDateStr,
+        time_str: newTime,
+        duration_str: newDuration,
+        event_type: newType,
+        host_name: hostName,
+        contact_id: selectedContactId,
+        contact_name: contactName
+      }]).select();
 
-    setEvents((prev) => [...prev, newEv]);
+      if (!error && data && data.length > 0) {
+        setEvents((prev) => [...prev, {
+          id: data[0].id,
+          dateStr: selectedDateStr,
+          title: newTitle.trim(),
+          time: newTime,
+          duration: newDuration,
+          type: newType,
+          host: hostName,
+          contactId: selectedContactId,
+          contactName: contactName
+        }]);
+      }
+    }
+
     setNewTitle('');
     setShowAddModal(false);
   };
 
-  const handleDeleteEvent = (id) => {
+  const handleDeleteEvent = async (id) => {
     setEvents((prev) => prev.filter((ev) => ev.id !== id));
+    if (isSupabaseConfigured) {
+      await supabase.from('calendar_events').delete().eq('id', id);
+    }
   };
 
   const handleStartCallForEvent = (ev) => {
@@ -172,7 +188,7 @@ export default function CalendarModal({ onClose }) {
   };
 
   return (
-    <div className="modal-overlay animate-fade-in" style={{ zIndex: 3500 }}>
+    <div className="modal-overlay animate-fade-in" style={{ zIndex: 20000 }}>
       <div
         className="modal-card animate-fade-in-up"
         style={{

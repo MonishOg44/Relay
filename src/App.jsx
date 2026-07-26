@@ -24,7 +24,14 @@ import SharedFilesModal from './components/Modals/SharedFilesModal';
 import ArchiveModal from './components/Modals/ArchiveModal';
 import SubscriptionsModal from './components/Modals/SubscriptionsModal';
 import PwaInstallModal from './components/ui/PwaInstallModal';
+import EventNotifier from './components/EventNotifier';
 import { MessageSquare, Phone, Settings, Sparkles, UserPlus, Grid2X2, X } from 'lucide-react';
+
+const customNavToggle = (isOpen) => (
+  <div className={`nav-item ${isOpen ? 'active' : ''}`}>
+    {isOpen ? <X size={20} /> : <Grid2X2 size={20} />}
+  </div>
+);
 
 function NavRail({
   activeNav,
@@ -108,12 +115,13 @@ function NavRail({
       {/* 6. Circular Staggered Menu Toggle Button */}
       <div className="nav-item-wrapper" title="Navigation Menu">
         <StaggeredMenu
-          isFixed={false}
+          isFixed={true}
           position="left"
           items={menuItems}
           socialItems={socialItems}
           displaySocials={false}
           displayItemNumbering={true}
+          closeOnClickAway={false}
           onMenuOpen={onMenuOpen}
           onMenuClose={onMenuClose}
           menuButtonColor="var(--text-primary)"
@@ -121,11 +129,7 @@ function NavRail({
           changeMenuColorOnOpen={false}
           colors={['var(--bg-header)', 'var(--bg-hover)', 'var(--bg-sidebar)']}
           accentColor="var(--accent-green)"
-          customToggle={(isOpen) => (
-            <div className={`nav-item ${isOpen ? 'active' : ''}`}>
-              {isOpen ? <X size={20} /> : <Grid2X2 size={20} />}
-            </div>
-          )}
+          customToggle={customNavToggle}
         />
       </div>
 
@@ -330,7 +334,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <MainLayout />
+        <EventNotifier>
+          <MainLayout />
+        </EventNotifier>
       </AuthProvider>
     </ThemeProvider>
   );

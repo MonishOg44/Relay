@@ -68,7 +68,7 @@ export default function SubscriptionsModal({ onClose }) {
         background: 'var(--overlay-bg, rgba(0,0,0,0.75))',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
-        zIndex: 9999,
+        zIndex: 20000,
         padding: '16px',
         boxSizing: 'border-box',
       }}

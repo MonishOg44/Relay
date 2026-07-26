@@ -159,7 +159,7 @@ export default function SharedFilesModal({ onClose }) {
   });
 
   return (
-    <div className="modal-overlay animate-fade-in" style={{ zIndex: 3500 }}>
+    <div className="modal-overlay animate-fade-in" style={{ zIndex: 20000 }}>
       <div
         className="modal-card animate-fade-in-up"
         style={{
@@ -190,7 +190,7 @@ export default function SharedFilesModal({ onClose }) {
         </button>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', paddingRight: '36px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '18px', paddingRight: '36px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(0, 168, 132, 0.14)', color: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Folder size={22} />

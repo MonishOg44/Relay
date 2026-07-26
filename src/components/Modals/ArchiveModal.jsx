@@ -26,7 +26,7 @@ export default function ArchiveModal({ onClose }) {
   };
 
   return (
-    <div className="modal-overlay animate-fade-in" style={{ zIndex: 3500 }}>
+    <div className="modal-overlay animate-fade-in" style={{ zIndex: 20000 }}>
       <div
         className="modal-card animate-fade-in-up"
         style={{

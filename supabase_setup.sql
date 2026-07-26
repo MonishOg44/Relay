@@ -228,3 +228,48 @@ DROP POLICY IF EXISTS "Users can view their waitlist status" ON public.waitlist;
 CREATE POLICY "Users can view their waitlist status" ON public.waitlist
   FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
+
+-- =========================================================
+-- 13. User Daily Usage (Screen Time — backend stored)
+-- =========================================================
+CREATE TABLE IF NOT EXISTS public.user_daily_usage (
+  id          uuid    DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id     uuid    REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  date        date    NOT NULL DEFAULT CURRENT_DATE,
+  screen_time_seconds integer DEFAULT 0,
+  updated_at  timestamptz DEFAULT now(),
+  UNIQUE (user_id, date)
+);
+
+ALTER TABLE public.user_daily_usage ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage own usage" ON public.user_daily_usage;
+CREATE POLICY "Users can manage own usage" ON public.user_daily_usage
+  FOR ALL TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- =========================================================
+-- 14. Calendar Events (Scheduled Calls & Meetings)
+-- =========================================================
+CREATE TABLE IF NOT EXISTS public.calendar_events (
+  id             uuid    DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id        uuid    REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  title          text    NOT NULL,
+  date_str       date    NOT NULL,
+  time_str       text    NOT NULL,
+  duration_str   text    NOT NULL,
+  event_type     text    NOT NULL,
+  host_name      text    NOT NULL,
+  contact_id     uuid    REFERENCES public.profiles(id) ON DELETE SET NULL,
+  contact_name   text,
+  created_at     timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.calendar_events ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage own calendar events" ON public.calendar_events;
+CREATE POLICY "Users can manage own calendar events" ON public.calendar_events
+  FOR ALL TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

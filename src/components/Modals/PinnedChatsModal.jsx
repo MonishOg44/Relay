@@ -18,7 +18,7 @@ export default function PinnedChatsModal({ onClose }) {
   };
 
   return (
-    <div className="modal-overlay animate-fade-in" style={{ zIndex: 3500 }}>
+    <div className="modal-overlay animate-fade-in" style={{ zIndex: 20000 }}>
       <div className="modal-card animate-fade-in-up" style={{ maxWidth: '520px', width: '90%' }}>
         <button
           onClick={onClose}

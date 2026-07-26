@@ -4,6 +4,8 @@ import { useVoiceCall } from '../../context/VoiceCallContext';
 import { useTheme } from '../../context/ThemeContext';
 import StaggeredMenu from './StaggeredMenu';
 
+const hiddenToggle = () => <div style={{ display: 'none' }} />;
+
 export default function MobileBottomNav({
   activeNav,
   setActiveNav,
@@ -74,21 +76,20 @@ export default function MobileBottomNav({
 
   return (
     <>
-      <div style={{ position: 'absolute', zIndex: 10001 }}>
-        <StaggeredMenu
-          isFixed={true}
-          position="bottom"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials={true}
-          displayItemNumbering={true}
-          isOpen={showControlCenter}
-          onMenuClose={() => setShowControlCenter(false)}
-          customToggle={() => <div style={{ display: 'none' }} />}
-          colors={['var(--bg-header)', 'var(--bg-hover)', 'var(--bg-sidebar)']}
-          accentColor="var(--accent-green)"
-        />
-      </div>
+      <StaggeredMenu
+        isFixed={true}
+        position="bottom"
+        items={menuItems}
+        socialItems={socialItems}
+        displaySocials={true}
+        displayItemNumbering={true}
+        isOpen={showControlCenter}
+        closeOnClickAway={false}
+        onMenuClose={() => setShowControlCenter(false)}
+        customToggle={hiddenToggle}
+        colors={['var(--bg-header)', 'var(--bg-hover)', 'var(--bg-sidebar)']}
+        accentColor="var(--accent-green)"
+      />
 
       {/* Pill-Shaped Glassmorphic Nav Bar with Sliding Indicator */}
       <div
