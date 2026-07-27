@@ -307,14 +307,14 @@ export default function ChatAnalyticsModal({ onClose }) {
             </div>
           </div>
 
-          {/* Neo-Brutalist RetroUI Connect & Support Footer Card */}
+          {/* Theme-Adaptive Neo-Brutalist RetroUI Connect & Support Footer Card */}
           <div style={{
             position: 'relative',
             borderRadius: '10px',
             padding: '18px 20px',
-            background: '#121212',
-            border: '2px solid #facc15',
-            boxShadow: '5px 5px 0px #facc15',
+            background: 'var(--bg-header)',
+            border: '2px solid var(--accent-green)',
+            boxShadow: '5px 5px 0px var(--accent-green)',
             display: 'flex',
             flexDirection: 'column',
             gap: '14px',
@@ -326,11 +326,11 @@ export default function ChatAnalyticsModal({ onClose }) {
                 <div style={{
                   width: '42px', height: '42px',
                   borderRadius: '8px',
-                  background: '#facc15',
-                  border: '2px solid #000000',
-                  boxShadow: '2px 2px 0px #ffffff',
+                  background: 'var(--accent-green)',
+                  border: '2px solid var(--text-primary)',
+                  boxShadow: '2px 2px 0px var(--border-color)',
                   display: 'grid', placeItems: 'center',
-                  color: '#000000',
+                  color: 'var(--accent-contrast-text, #ffffff)',
                   flexShrink: 0
                 }}>
                   <Mail size={20} strokeWidth={2.5} />
@@ -341,10 +341,10 @@ export default function ChatAnalyticsModal({ onClose }) {
                     alignItems: 'center',
                     gap: '6px',
                     padding: '2px 8px',
-                    background: '#facc15',
-                    border: '1.5px solid #000000',
+                    background: 'var(--accent-green)',
+                    border: '1.5px solid var(--text-primary)',
                     borderRadius: '4px',
-                    color: '#000000',
+                    color: 'var(--accent-contrast-text, #ffffff)',
                     fontSize: '10.5px',
                     fontWeight: 800,
                     textTransform: 'uppercase',
@@ -352,7 +352,7 @@ export default function ChatAnalyticsModal({ onClose }) {
                   }}>
                     <Sparkles size={11} strokeWidth={2.5} /> Connect &amp; Support
                   </div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff', marginTop: '4px', letterSpacing: '-0.2px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px', letterSpacing: '-0.2px' }}>
                     Have questions or feedback?
                   </div>
                 </div>
@@ -370,10 +370,10 @@ export default function ChatAnalyticsModal({ onClose }) {
                     gap: '8px',
                     padding: '9px 14px',
                     borderRadius: '6px',
-                    background: '#1a1a1a',
-                    border: '2px solid #facc15',
-                    boxShadow: '3px 3px 0px #facc15',
-                    color: '#ffffff',
+                    background: 'var(--bg-sidebar)',
+                    border: '2px solid var(--accent-green)',
+                    boxShadow: '3px 3px 0px var(--accent-green)',
+                    color: 'var(--text-primary)',
                     fontSize: '12px',
                     fontWeight: 700,
                     textDecoration: 'none',
@@ -382,20 +382,20 @@ export default function ChatAnalyticsModal({ onClose }) {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translate(-2px, -2px)';
-                    e.currentTarget.style.boxShadow = '5px 5px 0px #facc15';
+                    e.currentTarget.style.boxShadow = '5px 5px 0px var(--accent-green)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translate(0px, 0px)';
-                    e.currentTarget.style.boxShadow = '3px 3px 0px #facc15';
+                    e.currentTarget.style.boxShadow = '3px 3px 0px var(--accent-green)';
                   }}
                   onMouseDown={(e) => {
                     e.currentTarget.style.transform = 'translate(2px, 2px)';
-                    e.currentTarget.style.boxShadow = '1px 1px 0px #facc15';
+                    e.currentTarget.style.boxShadow = '1px 1px 0px var(--accent-green)';
                   }}
                 >
-                  <Mail size={14} color="#facc15" strokeWidth={2.5} />
+                  <Mail size={14} color="var(--accent-green)" strokeWidth={2.5} />
                   <span>relayappofficial@gmail.com</span>
-                  <ExternalLink size={12} color="#888888" strokeWidth={2} />
+                  <ExternalLink size={12} color="var(--text-secondary)" strokeWidth={2} />
                 </a>
 
                 <button
@@ -408,10 +408,10 @@ export default function ChatAnalyticsModal({ onClose }) {
                     gap: '6px',
                     padding: '9px 14px',
                     borderRadius: '6px',
-                    background: copiedEmail ? '#facc15' : '#1a1a1a',
-                    border: copiedEmail ? '2px solid #ffffff' : '2px solid #facc15',
-                    boxShadow: copiedEmail ? '3px 3px 0px #ffffff' : '3px 3px 0px #facc15',
-                    color: copiedEmail ? '#000000' : '#ffffff',
+                    background: copiedEmail ? 'var(--accent-green)' : 'var(--bg-sidebar)',
+                    border: copiedEmail ? '2px solid var(--text-primary)' : '2px solid var(--accent-green)',
+                    boxShadow: copiedEmail ? '3px 3px 0px var(--text-primary)' : '3px 3px 0px var(--accent-green)',
+                    color: copiedEmail ? 'var(--accent-contrast-text, #ffffff)' : 'var(--text-primary)',
                     fontSize: '12px',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -419,15 +419,15 @@ export default function ChatAnalyticsModal({ onClose }) {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translate(-2px, -2px)';
-                    e.currentTarget.style.boxShadow = copiedEmail ? '5px 5px 0px #ffffff' : '5px 5px 0px #facc15';
+                    e.currentTarget.style.boxShadow = copiedEmail ? '5px 5px 0px var(--text-primary)' : '5px 5px 0px var(--accent-green)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translate(0px, 0px)';
-                    e.currentTarget.style.boxShadow = copiedEmail ? '3px 3px 0px #ffffff' : '3px 3px 0px #facc15';
+                    e.currentTarget.style.boxShadow = copiedEmail ? '3px 3px 0px var(--text-primary)' : '3px 3px 0px var(--accent-green)';
                   }}
                   onMouseDown={(e) => {
                     e.currentTarget.style.transform = 'translate(2px, 2px)';
-                    e.currentTarget.style.boxShadow = '1px 1px 0px #facc15';
+                    e.currentTarget.style.boxShadow = '1px 1px 0px var(--accent-green)';
                   }}
                 >
                   {copiedEmail ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} strokeWidth={2.5} />}
@@ -438,15 +438,15 @@ export default function ChatAnalyticsModal({ onClose }) {
 
             <div style={{
               fontSize: '11.5px',
-              color: '#a1a1aa',
+              color: 'var(--text-secondary)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              borderTop: '2px dashed #27272a',
+              borderTop: '2px dashed var(--border-color)',
               paddingTop: '12px',
               fontWeight: 600
             }}>
-              <ShieldCheck size={15} color="#facc15" strokeWidth={2.5} />
+              <ShieldCheck size={15} color="var(--accent-green)" strokeWidth={2.5} />
               <span>Direct line to the Relay core developer &amp; support team</span>
             </div>
           </div>
