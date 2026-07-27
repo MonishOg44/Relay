@@ -95,8 +95,8 @@ export default function GroupsModal({ onClose, initialCreate = false }) {
         </button>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingRight: '36px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '20px', paddingRight: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
             <div
               style={{
                 width: '42px',
@@ -112,11 +112,11 @@ export default function GroupsModal({ onClose, initialCreate = false }) {
             >
               <Users size={22} />
             </div>
-            <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                Group Conversations & Channels
+            <div style={{ minWidth: 0 }}>
+              <h3 style={{ fontSize: '16.5px', fontWeight: 800, margin: 0, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                Group Conversations &amp; Channels
               </h3>
-              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '11.5px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
                 Join or create team channels and group voice calls
               </p>
             </div>

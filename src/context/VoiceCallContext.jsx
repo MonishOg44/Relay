@@ -160,6 +160,7 @@ export const VoiceCallProvider = ({ children }) => {
           setCallPartner(caller);
           setCallType(signalData?.callType || 'audio');
           setCallState('incoming');
+          // Background call notifications are handled by the SW push via notify-call Edge Function
         } else if (type === 'call-accept') {
           // Callee accepted call -> create WebRTC Offer
           if (callState === 'calling') {

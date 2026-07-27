@@ -441,13 +441,36 @@ export default function ChatAnalyticsModal({ onClose }) {
               color: 'var(--text-secondary)',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
               gap: '8px',
               borderTop: '2px dashed var(--border-color)',
               paddingTop: '12px',
               fontWeight: 600
             }}>
-              <ShieldCheck size={15} color="var(--accent-green)" strokeWidth={2.5} />
-              <span>Direct line to the Relay core developer &amp; support team</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ShieldCheck size={15} color="var(--accent-green)" strokeWidth={2.5} />
+                <span>Direct line to the Relay core developer &amp; support team</span>
+              </div>
+              <div style={{
+                fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', sans-serif",
+                fontSize: '11px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                letterSpacing: '1.2px',
+                textTransform: 'uppercase',
+                background: 'var(--bg-sidebar)',
+                padding: '5px 12px',
+                borderRadius: '6px',
+                border: '2px solid var(--accent-green)',
+                boxShadow: '3px 3px 0px var(--accent-green)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <Sparkles size={12} color="var(--accent-green)" strokeWidth={2.5} />
+                <span>An app by StrangeGT Technologies</span>
+              </div>
             </div>
           </div>
 

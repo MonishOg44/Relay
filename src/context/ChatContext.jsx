@@ -67,6 +67,25 @@ export const ChatProvider = ({ children }) => {
     if (notifTimeoutRef.current) clearTimeout(notifTimeoutRef.current);
     setInAppNotification(null);
   }, []);
+
+  // Listen for push messages forwarded by the service worker when app is focused.
+  // The SW sends PUSH_WHILE_FOCUSED instead of showing a native notification.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const handleSwMessage = (event) => {
+      if (!event.data || event.data.type !== 'PUSH_WHILE_FOCUSED') return;
+      const data = event.data.payload || {};
+      // Show in-app toast using the push payload
+      showInAppNotification({
+        senderId: data.senderId || null,
+        senderName: data.title || 'Relay',
+        senderAvatar: data.icon || '/relay-icon-192.png',
+        content: data.body || '',
+      });
+    };
+    navigator.serviceWorker.addEventListener('message', handleSwMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+  }, [showInAppNotification]);
   const presenceChannelRef = useRef(null);
   const typingTimeoutRef = useRef({});
 
@@ -254,22 +273,13 @@ export const ChatProvider = ({ children }) => {
             const senderName = requesterProfile?.username || 'Someone';
             const senderAvatar = requesterProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${payload.new.requester_id}`;
             
+            // Always show in-app toast when visible; background notifications go through SW push
             showInAppNotification({
               senderId: payload.new.requester_id,
               senderName,
               senderAvatar,
               content: '👋 Sent you a friend request!',
             });
-
-            if ('Notification' in window && Notification.permission === 'granted') {
-              try {
-                new Notification(`New Friend Request from ${senderName}`, {
-                  body: `${senderName} sent you a friend request on Relay`,
-                  icon: senderAvatar,
-                  tag: 'relay-friend-req',
-                });
-              } catch (e) {}
-            }
           }
         }
       )
@@ -500,28 +510,20 @@ export const ChatProvider = ({ children }) => {
                   [newMsg.sender_id]: (prev[newMsg.sender_id] || 0) + 1,
                 }));
 
-                // Show in-app toast notification
                 const senderProfile = allUsers.find(u => u.id === newMsg.sender_id);
                 const senderName = senderProfile?.username || 'Someone';
                 const senderAvatar = senderProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${newMsg.sender_id}`;
 
-                showInAppNotification({
-                  senderId: newMsg.sender_id,
-                  senderName,
-                  senderAvatar,
-                  content: newMsg.content,
-                });
-
-                // Native System / Browser Notification (for background tab/minimized app)
-                if ('Notification' in window && Notification.permission === 'granted') {
-                  try {
-                    new Notification(senderName, {
-                      body: newMsg.content,
-                      icon: senderAvatar,
-                      tag: `relay-msg-${newMsg.sender_id}`,
-                    });
-                  } catch (e) {}
+                if (document.visibilityState === 'visible') {
+                  // Show in-app toast notification when user is actively looking at the app
+                  showInAppNotification({
+                    senderId: newMsg.sender_id,
+                    senderName,
+                    senderAvatar,
+                    content: newMsg.content,
+                  });
                 }
+                // Background notifications are handled by the push SW via the Edge Function
               }
             } else if (activeUser?.id === newMsg.receiver_id) {
               // Message sent by self - de-duplicate with optimistic state smoothly

@@ -265,6 +265,26 @@ function MainLayout() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
 
+  const isAnyModalOpen = Boolean(
+    showConfig || showSettings || showAnalytics || showCalendar ||
+    showPinnedChats || showFavourites || showBlockedUsers || showSharedFiles ||
+    showArchive || showSubscriptions || showAiModal || showSearchModal || showPwaInstall
+  );
+
+  React.useEffect(() => {
+    if (isAnyModalOpen) {
+      document.documentElement.classList.add('modal-open');
+      document.body.classList.add('modal-open');
+    } else {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    }
+    return () => {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    };
+  }, [isAnyModalOpen]);
+
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
   }, []);

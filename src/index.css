@@ -1,5 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@700&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
+
+html, body {
+  font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
 
 .relay-brand-script {
   font-family: 'Caveat', 'Dancing Script', cursive, sans-serif;
@@ -787,6 +791,25 @@ body {
 .auth-btn:hover { background: var(--accent-green-hover); }
 .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+html.modal-open {
+  overflow: hidden !important;
+  height: 100% !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+body.modal-open {
+  overflow: hidden !important;
+  height: 100% !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: auto !important;
+  position: fixed !important;
+  width: 100% !important;
+  /* Prevent scroll position jump by preserving scroll */
+  left: 0;
+  right: 0;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -803,6 +826,8 @@ body {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   isolation: isolate;
+  /* Capture all pointer/touch events so nothing bleeds through to background */
+  pointer-events: all;
 }
 
 .modal-card {

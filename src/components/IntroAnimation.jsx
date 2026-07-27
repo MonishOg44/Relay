@@ -63,64 +63,25 @@ export default function IntroAnimation({ onComplete }) {
             boxSizing: 'border-box',
           }}
         >
-          {/* Flexbox-centered container — works perfectly in PWA standalone mode */}
+          {/* Dead-centered clean Relay logo */}
           <div
             style={{
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '14px',
-              whiteSpace: 'nowrap',
             }}
           >
-            {/* Stacked Logo for better visual centering */}
-            <div
+            <span
+              className="relay-brand-script"
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
+                fontSize: '84px',
+                color: isLight ? '#000000' : '#ffffff',
+                lineHeight: 1,
+                paddingRight: '12px'
               }}
             >
-              <span
-                className="relay-brand-script"
-                style={{
-                  fontSize: '72px',
-                  color: isLight ? '#000000' : '#ffffff',
-                  lineHeight: 1,
-                  paddingRight: '12px' // offset cursive slant visually
-                }}
-              >
-                Relay
-              </span>
-              <span
-                style={{
-                  fontSize: '24px',
-                  fontWeight: 800,
-                  color: isLight ? '#000000' : '#ffffff',
-                  letterSpacing: '0px',
-                  lineHeight: 1,
-                  opacity: 0.9,
-                }}
-              >
-                for {deviceType}
-              </span>
-            </div>
-
-            <div
-              style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: isLight ? '#64748b' : '#94a3b8',
-                letterSpacing: '3px',
-                textTransform: 'uppercase',
-                opacity: 0.8,
-              }}
-            >
-              from StrangeGT Technologies
-            </div>
+              Relay
+            </span>
           </div>
         </motion.div>
       )}

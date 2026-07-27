@@ -133,7 +133,7 @@ export default function MobileBottomNav({
         }}
         style={{
           position: 'fixed',
-          bottom: '16px',
+          bottom: 'max(20px, env(safe-area-inset-bottom))',
           left: '16px',
           right: '16px',
           zIndex: 3000,

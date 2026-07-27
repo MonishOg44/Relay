@@ -47,26 +47,50 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   if (!event.data) return;
 
+  let data;
   try {
-    const data = event.data.json();
-    const title = data.title || 'New Notification';
-    const options = {
-      body: data.body || '',
-      icon: '/relay-icon-512-dark.png',
-      badge: '/relay-icon-192-dark.png',
-      data: data.data || {},
-      vibrate: [200, 100, 200],
-      tag: data.tag || 'relay-notification',
-      renotify: true,
-      actions: data.actions || [],
-    };
-
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
+    data = event.data.json();
   } catch (err) {
     console.error('Push event payload parsing failed:', err);
+    return;
   }
+
+  const title = data.title || 'New Notification';
+  const options = {
+    body: data.body || '',
+    icon: '/relay-icon-512-dark.png',
+    badge: '/relay-icon-192-dark.png',
+    data: data.data || {},
+    vibrate: data.vibrate || [200, 100, 200],
+    tag: data.tag || 'relay-notification',
+    renotify: true,
+    requireInteraction: data.requireInteraction || false,
+    actions: data.actions || [],
+  };
+
+  event.waitUntil(
+    // Check if any app window is currently open and focused
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Find any window that is currently focused and visible
+      const focusedClient = windowClients.find(
+        (c) => c.focused === true && c.visibilityState === 'visible'
+      );
+
+      if (focusedClient) {
+        // App is open and in focus — send push data to the app directly.
+        // The React app will show its own in-app toast. Skip the native notification.
+        focusedClient.postMessage({
+          type: 'PUSH_WHILE_FOCUSED',
+          payload: data,
+        });
+        return; // DO NOT show native notification
+      }
+
+      // No focused window — app is backgrounded or closed.
+      // Show the native OS notification.
+      return self.registration.showNotification(title, options);
+    })
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
