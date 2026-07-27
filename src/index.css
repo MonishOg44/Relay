@@ -1019,12 +1019,11 @@ body.modal-open {
 
   .messages-area {
     padding: 12px 8px !important;
-    padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 80px)) !important;
   }
 
-  /* Chat input: clear gap above iOS home indicator */
+  /* Chat input: safe bottom clearance */
   .chat-input-area {
-    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    padding-bottom: 10px !important;
   }
 
   /* Hide scrollbar entirely on mobile to match WhatsApp */
