@@ -55,16 +55,17 @@ export default function IntroAnimation({ onComplete }) {
             zIndex: 9999,
             height: '100dvh',
             width: '100vw',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            boxSizing: 'border-box',
           }}
         >
-          {/* 100% Dead-Centered Container — safe-area aware for PWA */}
+          {/* Flexbox-centered container — works perfectly in PWA standalone mode */}
           <div
             style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              marginTop: 'calc((env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / -2)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',

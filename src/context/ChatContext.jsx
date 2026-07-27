@@ -237,7 +237,7 @@ export const ChatProvider = ({ children }) => {
     }
   }, [profile, fetchAllUsers, fetchRecentConversations, fetchFriendships]);
 
-  // Subscription for friendships
+  // Subscription for friendships & Real-time Friend Request Notifications
   useEffect(() => {
     if (!profile || !supabase) return;
     
@@ -248,6 +248,29 @@ export const ChatProvider = ({ children }) => {
         { event: '*', schema: 'public', table: 'friendships' },
         (payload) => {
           fetchFriendships();
+          if (payload.eventType === 'INSERT' && payload.new?.receiver_id === profile.id && payload.new?.status === 'pending') {
+            playReceiveSound();
+            const requesterProfile = allUsers.find(u => u.id === payload.new.requester_id);
+            const senderName = requesterProfile?.username || 'Someone';
+            const senderAvatar = requesterProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${payload.new.requester_id}`;
+            
+            showInAppNotification({
+              senderId: payload.new.requester_id,
+              senderName,
+              senderAvatar,
+              content: '👋 Sent you a friend request!',
+            });
+
+            if ('Notification' in window && Notification.permission === 'granted') {
+              try {
+                new Notification(`New Friend Request from ${senderName}`, {
+                  body: `${senderName} sent you a friend request on Relay`,
+                  icon: senderAvatar,
+                  tag: 'relay-friend-req',
+                });
+              } catch (e) {}
+            }
+          }
         }
       )
       .subscribe();
@@ -255,7 +278,9 @@ export const ChatProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(friendSub);
     };
-  }, [profile, fetchFriendships]);
+  }, [profile, fetchFriendships, allUsers, showInAppNotification]);
+
+  const pendingRequestCount = friendships.filter(f => f.receiver_id === profile?.id && f.status === 'pending').length;
 
   const [archivedUserIds, setArchivedUserIds] = useState(() => {
     const key = profile?.id ? `relay_archived_users_${profile.id}` : 'relay_archived_users';
@@ -477,12 +502,26 @@ export const ChatProvider = ({ children }) => {
 
                 // Show in-app toast notification
                 const senderProfile = allUsers.find(u => u.id === newMsg.sender_id);
+                const senderName = senderProfile?.username || 'Someone';
+                const senderAvatar = senderProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${newMsg.sender_id}`;
+
                 showInAppNotification({
                   senderId: newMsg.sender_id,
-                  senderName: senderProfile?.username || 'Someone',
-                  senderAvatar: senderProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${newMsg.sender_id}`,
+                  senderName,
+                  senderAvatar,
                   content: newMsg.content,
                 });
+
+                // Native System / Browser Notification (for background tab/minimized app)
+                if ('Notification' in window && Notification.permission === 'granted') {
+                  try {
+                    new Notification(senderName, {
+                      body: newMsg.content,
+                      icon: senderAvatar,
+                      tag: `relay-msg-${newMsg.sender_id}`,
+                    });
+                  } catch (e) {}
+                }
               }
             } else if (activeUser?.id === newMsg.receiver_id) {
               // Message sent by self - de-duplicate with optimistic state smoothly
@@ -704,6 +743,7 @@ export const ChatProvider = ({ children }) => {
         allUsers,
         users: sidebarUsers,
         friendships,
+        pendingRequestCount,
         fetchFriendships,
         getFriendship,
         getPrivacyMaskedAvatar,

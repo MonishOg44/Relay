@@ -47,6 +47,7 @@ function NavRail({
   onMenuClose,
 }) {
   const { missedCount } = useVoiceCall();
+  const { pendingRequestCount = 0 } = useChat() || {};
 
   return (
     <nav className="nav-rail">
@@ -100,13 +101,36 @@ function NavRail({
         <Sparkles size={20} />
       </button>
 
-      {/* 4. Find Contacts Button */}
+      {/* 4. Find Contacts & Requests Button */}
       <button
         className="nav-item nav-item-contacts"
         onClick={onOpenSearchModal}
-        title="Find Contacts by Name or Email"
+        title="Find Contacts & Requests"
+        style={{ position: 'relative' }}
       >
         <UserPlus size={20} />
+        {pendingRequestCount > 0 && (
+          <span
+            style={{
+              position: 'absolute',
+              top: '2px',
+              right: '2px',
+              background: '#ef4444',
+              color: '#ffffff',
+              fontSize: '10px',
+              fontWeight: 700,
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              lineHeight: 1,
+            }}
+          >
+            {pendingRequestCount}
+          </span>
+        )}
       </button>
 
       {/* 5. Settings Button */}

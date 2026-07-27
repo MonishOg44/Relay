@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageSquare, Phone, Sparkles, UserPlus, Settings, Grid2X2, X } from 'lucide-react';
 import { useVoiceCall } from '../../context/VoiceCallContext';
+import { useChat } from '../../context/ChatContext';
 import { useTheme } from '../../context/ThemeContext';
 import StaggeredMenu from './StaggeredMenu';
 
@@ -19,9 +20,25 @@ export default function MobileBottomNav({
   const [showControlCenter, setShowControlCenter] = useState(false);
   const [dragIndex, setDragIndex] = useState(null);
   const { missedCount } = useVoiceCall();
+  const { pendingRequestCount = 0 } = useChat() || {};
   const themeContext = useTheme();
   const theme = themeContext?.theme || 'dark';
   const isLight = theme === 'light';
+
+  // Lock background scroll when the Staggered Menu is open
+  useEffect(() => {
+    if (showControlCenter) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [showControlCenter]);
 
   const navItems = [
     {
@@ -49,7 +66,7 @@ export default function MobileBottomNav({
       id: 'search',
       icon: UserPlus,
       label: 'New',
-      badge: 0,
+      badge: pendingRequestCount,
       onClick: () => {
         setShowControlCenter(false);
         onOpenSearchModal();

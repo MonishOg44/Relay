@@ -89,7 +89,7 @@ export default function UserSearchModal({ onClose, onCallUser }) {
               <MessageSquare size={14} /> Message
             </button>
           ) : isPendingReceived ? (
-            <button onClick={() => handleAction(u, 'accept')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--accent-green)', border: 'none', color: '#fff', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+            <button onClick={() => handleAction(u, 'accept')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--accent-green)', border: 'none', color: 'var(--accent-contrast-text, #fff)', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
               <UserCheck size={14} /> Accept
             </button>
           ) : isPendingSent ? (
@@ -151,7 +151,7 @@ export default function UserSearchModal({ onClose, onCallUser }) {
           >
             <Bell size={16} /> Requests
             {incomingRequests.length > 0 && (
-              <div style={{ background: '#ef4444', color: '#fff', fontSize: '11px', padding: '2px 6px', borderRadius: '10px', fontWeight: 700 }}>
+              <div style={{ background: '#ef4444', color: '#fff', fontSize: '11px', padding: '2px 6px', borderRadius: '10px', fontWeight: 700, minWidth: '18px', textAlign: 'center', flexShrink: 0 }}>
                 {incomingRequests.length}
               </div>
             )}
