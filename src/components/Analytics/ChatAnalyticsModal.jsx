@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
-import { X, Activity, MessageSquare, Zap, Users } from 'lucide-react';
+import { X, Activity, MessageSquare, Zap, Users, Mail, Sparkles, ExternalLink, ShieldCheck, Copy, Check } from 'lucide-react';
 
 export default function ChatAnalyticsModal({ onClose }) {
   const { profile } = useAuth();
@@ -22,6 +22,14 @@ export default function ChatAnalyticsModal({ onClose }) {
 
   // ── Tooltip state ───────────────────────────────────────────────
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+
+  const handleCopyEmail = (e) => {
+    e.preventDefault();
+    navigator.clipboard.writeText('relayappofficial@gmail.com');
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2500);
+  };
 
   // Fetch all analytics from backend
   const fetchMetrics = useCallback(async () => {
@@ -296,6 +304,150 @@ export default function ChatAnalyticsModal({ onClose }) {
                   <div style={{ height: '100%', width: statsLoading ? '0%' : `${stats.mediaPercent}%`, background: '#53bdeb', borderRadius: '4px', transition: 'width 0.5s ease' }} />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Neo-Brutalist RetroUI Connect & Support Footer Card */}
+          <div style={{
+            position: 'relative',
+            borderRadius: '10px',
+            padding: '18px 20px',
+            background: '#121212',
+            border: '2px solid #facc15',
+            boxShadow: '5px 5px 0px #facc15',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            marginTop: '8px',
+            transition: 'all 0.2s ease'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '42px', height: '42px',
+                  borderRadius: '8px',
+                  background: '#facc15',
+                  border: '2px solid #000000',
+                  boxShadow: '2px 2px 0px #ffffff',
+                  display: 'grid', placeItems: 'center',
+                  color: '#000000',
+                  flexShrink: 0
+                }}>
+                  <Mail size={20} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '2px 8px',
+                    background: '#facc15',
+                    border: '1.5px solid #000000',
+                    borderRadius: '4px',
+                    color: '#000000',
+                    fontSize: '10.5px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.8px'
+                  }}>
+                    <Sparkles size={11} strokeWidth={2.5} /> Connect &amp; Support
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff', marginTop: '4px', letterSpacing: '-0.2px' }}>
+                    Have questions or feedback?
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons: Direct Mailto & One-Tap Copy */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <a
+                  href="mailto:relayappofficial@gmail.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '9px 14px',
+                    borderRadius: '6px',
+                    background: '#1a1a1a',
+                    border: '2px solid #facc15',
+                    boxShadow: '3px 3px 0px #facc15',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translate(-2px, -2px)';
+                    e.currentTarget.style.boxShadow = '5px 5px 0px #facc15';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translate(0px, 0px)';
+                    e.currentTarget.style.boxShadow = '3px 3px 0px #facc15';
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.transform = 'translate(2px, 2px)';
+                    e.currentTarget.style.boxShadow = '1px 1px 0px #facc15';
+                  }}
+                >
+                  <Mail size={14} color="#facc15" strokeWidth={2.5} />
+                  <span>relayappofficial@gmail.com</span>
+                  <ExternalLink size={12} color="#888888" strokeWidth={2} />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  title="Copy email to clipboard"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '9px 14px',
+                    borderRadius: '6px',
+                    background: copiedEmail ? '#facc15' : '#1a1a1a',
+                    border: copiedEmail ? '2px solid #ffffff' : '2px solid #facc15',
+                    boxShadow: copiedEmail ? '3px 3px 0px #ffffff' : '3px 3px 0px #facc15',
+                    color: copiedEmail ? '#000000' : '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translate(-2px, -2px)';
+                    e.currentTarget.style.boxShadow = copiedEmail ? '5px 5px 0px #ffffff' : '5px 5px 0px #facc15';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translate(0px, 0px)';
+                    e.currentTarget.style.boxShadow = copiedEmail ? '3px 3px 0px #ffffff' : '3px 3px 0px #facc15';
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.transform = 'translate(2px, 2px)';
+                    e.currentTarget.style.boxShadow = '1px 1px 0px #facc15';
+                  }}
+                >
+                  {copiedEmail ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} strokeWidth={2.5} />}
+                  <span>{copiedEmail ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            </div>
+
+            <div style={{
+              fontSize: '11.5px',
+              color: '#a1a1aa',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              borderTop: '2px dashed #27272a',
+              paddingTop: '12px',
+              fontWeight: 600
+            }}>
+              <ShieldCheck size={15} color="#facc15" strokeWidth={2.5} />
+              <span>Direct line to the Relay core developer &amp; support team</span>
             </div>
           </div>
 
