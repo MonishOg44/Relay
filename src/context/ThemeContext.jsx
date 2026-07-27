@@ -114,9 +114,46 @@ function adjustColorForVisibility(hexColor, currentTheme) {
 }
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('relay_theme') || 'dark';
+  const [themeMode, setThemeModeState] = useState(() => {
+    const savedMode = localStorage.getItem('relay_theme_mode');
+    if (savedMode) return savedMode;
+    const legacyTheme = localStorage.getItem('relay_theme');
+    if (legacyTheme) return legacyTheme;
+    return 'system';
   });
+
+  const [systemTheme, setSystemTheme] = useState(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
+  });
+
+  // Listen to system color scheme changes in real-time
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      setSystemTheme(e.matches ? 'dark' : 'light');
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+    } else if (mediaQuery.addListener) {
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleChange);
+      } else if (mediaQuery.removeListener) {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, []);
+
+  const theme = themeMode === 'system' ? systemTheme : themeMode;
 
   const [accentColor, setAccentColorState] = useState(() => {
     return localStorage.getItem('relay_accent_color') || 'emerald';
@@ -130,26 +167,18 @@ export const ThemeProvider = ({ children }) => {
     return localStorage.getItem('relay_bg_style') || 'pattern';
   });
 
-  const [orientationLock, setOrientationLockState] = useState(() => {
-    return localStorage.getItem('relay_orientation_lock') === 'true';
+  const [soundEffects, setSoundEffectsState] = useState(() => {
+    const val = localStorage.getItem('relay_sound_effects');
+    return val !== null ? val === 'true' : true;
   });
 
-  // Handle Orientation Lock
-  useEffect(() => {
-    if (orientationLock) {
-      if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
-        window.screen.orientation.lock('portrait').catch((err) => {
-          console.warn('Orientation lock failed (often requires PWA or Fullscreen):', err);
-        });
-      }
-    } else {
-      if (window.screen && window.screen.orientation && window.screen.orientation.unlock) {
-        window.screen.orientation.unlock();
-      }
-    }
-  }, [orientationLock]);
+  const setSoundEffects = (enabled) => {
+    setSoundEffectsState(enabled);
+    localStorage.setItem('relay_sound_effects', enabled.toString());
+  };
 
   useEffect(() => {
+    localStorage.setItem('relay_theme_mode', themeMode);
     localStorage.setItem('relay_theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('data-bg-style', bgStyle);
@@ -182,16 +211,36 @@ export const ThemeProvider = ({ children }) => {
 
     const { contrastText } = adjustColorForVisibility(activePreset.color, theme);
 
+    let toggleActiveBg = activePreset.color;
+    let toggleActiveKnob = contrastText;
+
+    if (activePreset.id === 'minimal') {
+      if (theme === 'dark') {
+        toggleActiveBg = '#ffffff';
+        toggleActiveKnob = '#000000';
+      } else {
+        toggleActiveBg = '#0f172a';
+        toggleActiveKnob = '#ffffff';
+      }
+    }
+
     document.documentElement.style.setProperty('--accent-green', activePreset.color);
     document.documentElement.style.setProperty('--accent-green-hover', activePreset.hover);
     document.documentElement.style.setProperty('--accent-contrast-text', contrastText);
+    document.documentElement.style.setProperty('--toggle-active-bg', toggleActiveBg);
+    document.documentElement.style.setProperty('--toggle-active-knob', toggleActiveKnob);
     document.documentElement.style.setProperty('--icon-active', activePreset.color);
     document.documentElement.style.setProperty('--unread-badge', activePreset.badge);
     document.documentElement.style.setProperty(
       '--bg-message-out',
       theme === 'dark' ? activePreset.messageOutDark : activePreset.messageOutLight
     );
-  }, [theme, accentColor, customHex, bgStyle]);
+  }, [themeMode, theme, accentColor, customHex, bgStyle]);
+
+  const setThemeMode = (mode) => {
+    setThemeModeState(mode);
+    localStorage.setItem('relay_theme_mode', mode);
+  };
 
   const setAccentColor = (colorId) => {
     setAccentColorState(colorId);
@@ -216,13 +265,19 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    if (themeMode === 'system') {
+      setThemeMode(theme === 'dark' ? 'light' : 'dark');
+    } else {
+      setThemeMode(themeMode === 'dark' ? 'light' : 'dark');
+    }
   };
 
   return (
     <ThemeContext.Provider
       value={{
         theme,
+        themeMode,
+        setThemeMode,
         toggleTheme,
         accentColor,
         setAccentColor,
@@ -230,8 +285,8 @@ export const ThemeProvider = ({ children }) => {
         setCustomColor,
         bgStyle,
         setBgStyle,
-        orientationLock,
-        setOrientationLock,
+        soundEffects,
+        setSoundEffects,
         ACCENT_PRESETS,
       }}
     >

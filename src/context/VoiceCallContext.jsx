@@ -57,6 +57,7 @@ export const VoiceCallProvider = ({ children }) => {
   const [callType, setCallType] = useState('audio'); // 'audio' | 'video'
   const [callPartner, setCallPartner] = useState(null); // profile object of partner
   const [isMuted, setIsMuted] = useState(false);
+  const [isSpeaker, setIsSpeaker] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
@@ -438,6 +439,19 @@ export const VoiceCallProvider = ({ children }) => {
     }
   };
 
+  // Toggle Speaker / Earpiece
+  const toggleSpeaker = () => {
+    const newSpeaker = !isSpeaker;
+    setIsSpeaker(newSpeaker);
+    const audioEl = remoteAudioRef.current;
+    if (audioEl && typeof audioEl.setSinkId === 'function') {
+      // 'default' = speaker, 'communications' = earpiece on mobile
+      audioEl.setSinkId(newSpeaker ? 'default' : 'communications').catch((err) => {
+        console.warn('setSinkId not fully supported:', err);
+      });
+    }
+  };
+
   // Cleanup WebRTC resources and streams
   const cleanupCall = (reason = '') => {
     if (localStreamRef.current) {
@@ -459,6 +473,7 @@ export const VoiceCallProvider = ({ children }) => {
     setCallState('idle');
     setCallPartner(null);
     setIsMuted(false);
+    setIsSpeaker(true);
     setCallDuration(0);
   };
 
@@ -475,6 +490,7 @@ export const VoiceCallProvider = ({ children }) => {
         callType,
         callPartner,
         isMuted,
+        isSpeaker,
         callDuration,
         localStream,
         remoteStream,
@@ -490,6 +506,7 @@ export const VoiceCallProvider = ({ children }) => {
         rejectCall,
         endCall,
         toggleMute,
+        toggleSpeaker,
       }}
     >
       {children}

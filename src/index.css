@@ -799,6 +799,10 @@ body {
   padding: 16px;
   box-sizing: border-box;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  isolation: isolate;
 }
 
 .modal-card {
@@ -806,6 +810,7 @@ body {
   max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--bg-sidebar);
   border: 1px solid var(--border-color);
   border-radius: 16px;
@@ -995,7 +1000,7 @@ body {
   height: 24px;
   border-radius: 12px;
   border: none;
-  background: var(--toggle-bg-off, #d1d7db);
+  background: var(--toggle-bg-off, #334155);
   cursor: pointer;
   position: relative;
   padding: 0;
@@ -1004,7 +1009,7 @@ body {
 }
 .relay-toggle[aria-checked="true"],
 .relay-toggle.active {
-  background: var(--accent-green);
+  background: var(--toggle-active-bg, var(--accent-green));
 }
 .relay-toggle-knob {
   position: absolute;
@@ -1015,13 +1020,13 @@ body {
   border-radius: 50%;
   background: var(--toggle-knob-off, #ffffff);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
   pointer-events: none;
 }
 .relay-toggle[aria-checked="true"] .relay-toggle-knob,
 .relay-toggle.active .relay-toggle-knob {
   transform: translateX(20px);
-  background: var(--accent-contrast-text, #ffffff);
+  background: var(--toggle-active-knob, var(--accent-contrast-text, #ffffff));
 }
 
 [data-theme='dark'] {

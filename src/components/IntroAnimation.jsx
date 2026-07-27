@@ -53,15 +53,18 @@ export default function IntroAnimation({ onComplete }) {
             inset: 0,
             background: isLight ? '#ffffff' : '#000000',
             zIndex: 9999,
+            height: '100dvh',
+            width: '100vw',
           }}
         >
-          {/* 100% Dead-Centered Container */}
+          {/* 100% Dead-Centered Container — safe-area aware for PWA */}
           <div
             style={{
               position: 'absolute',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
+              marginTop: 'calc((env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / -2)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',

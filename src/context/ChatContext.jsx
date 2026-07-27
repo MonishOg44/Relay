@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
-import { supabase } from '../lib/supabaseClient';
+import { supabase, SUPABASE_URL } from '../lib/supabaseClient';
+import { playSendSound, playReceiveSound } from '../lib/soundEffects';
 
 const ChatContext = createContext();
 
@@ -51,6 +52,21 @@ export const ChatProvider = ({ children }) => {
   const [typingUsers, setTypingUsers] = useState({});
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [loadingChat, setLoadingChat] = useState(false);
+
+  // ── In-app notification state ───────────────────────────────────
+  const [inAppNotification, setInAppNotification] = useState(null);
+  const notifTimeoutRef = useRef(null);
+
+  const showInAppNotification = useCallback((notif) => {
+    if (notifTimeoutRef.current) clearTimeout(notifTimeoutRef.current);
+    setInAppNotification(notif);
+    notifTimeoutRef.current = setTimeout(() => setInAppNotification(null), 4000);
+  }, []);
+
+  const dismissNotification = useCallback(() => {
+    if (notifTimeoutRef.current) clearTimeout(notifTimeoutRef.current);
+    setInAppNotification(null);
+  }, []);
   const presenceChannelRef = useRef(null);
   const typingTimeoutRef = useRef({});
 
@@ -444,6 +460,7 @@ export const ChatProvider = ({ children }) => {
 
             // If new message comes from someone else:
             if (newMsg.receiver_id === profile.id) {
+              playReceiveSound();
               if (activeUser?.id === newMsg.sender_id) {
                 // If chat is open, append message and mark read
                 setMessages((prev) => {
@@ -457,6 +474,15 @@ export const ChatProvider = ({ children }) => {
                   ...prev,
                   [newMsg.sender_id]: (prev[newMsg.sender_id] || 0) + 1,
                 }));
+
+                // Show in-app toast notification
+                const senderProfile = allUsers.find(u => u.id === newMsg.sender_id);
+                showInAppNotification({
+                  senderId: newMsg.sender_id,
+                  senderName: senderProfile?.username || 'Someone',
+                  senderAvatar: senderProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${newMsg.sender_id}`,
+                  content: newMsg.content,
+                });
               }
             } else if (activeUser?.id === newMsg.receiver_id) {
               // Message sent by self - de-duplicate with optimistic state smoothly
@@ -518,6 +544,7 @@ export const ChatProvider = ({ children }) => {
     setMessages((prev) => [...prev, optimisticMsg]);
     setLastMessages((prev) => ({ ...prev, [activeUser.id]: optimisticMsg }));
     updateRecentPartners(activeUser.id);
+    playSendSound();
 
     // 2. Perform Supabase DB insertion in background without blocking UI
     try {
@@ -539,6 +566,16 @@ export const ChatProvider = ({ children }) => {
           prev.map((m) => (m.id === tempId || m.client_key === tempId ? fullMsg : m))
         );
         setLastMessages((prev) => ({ ...prev, [activeUser.id]: fullMsg }));
+
+        // 3. Fire push notification to receiver via Edge Function (non-blocking)
+        if (SUPABASE_URL && !activeUser.isGroup) {
+          fetch(`${SUPABASE_URL}/functions/v1/notify-message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+            body: JSON.stringify({ type: 'INSERT', table: 'messages', record: { sender_id: profile.id, receiver_id: activeUser.id, content: trimmedContent } }),
+          }).catch(() => {}); // Fire-and-forget, don't block UI
+        }
+
         return fullMsg;
       }
     } catch (err) {
@@ -680,6 +717,8 @@ export const ChatProvider = ({ children }) => {
         typingUsers,
         onlineUsers,
         sendMessage,
+        inAppNotification,
+        dismissNotification,
         sendTypingStatus,
         fetchAllUsers,
         pinnedUserIds,

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { PushService } from '../../lib/PushService';
-import { X, Moon, Sun, User, Bell, Check, Save, AlertCircle, LogOut, Palette, Upload, Camera, Trash2, AlertTriangle } from 'lucide-react';
+import { X, Moon, Sun, Laptop, User, Bell, Check, Save, AlertCircle, LogOut, Palette, Upload, Camera, Trash2, AlertTriangle, Volume2, VolumeX } from 'lucide-react';
 import SignOutModal from '../Auth/SignOutModal';
 import AvatarCropperModal from './AvatarCropperModal';
 import BannerCropperModal from './BannerCropperModal';
@@ -19,7 +19,7 @@ const PRESET_AVATARS = [
 
 export default function AppSettingsModal({ onClose, initialTab = 'themes' }) {
   const { profile, updateProfile, updatePassword, deleteAccount, logout } = useAuth();
-  const { theme, toggleTheme, accentColor, setAccentColor, customHex, setCustomColor, bgStyle, setBgStyle, orientationLock, setOrientationLock, ACCENT_PRESETS } = useTheme();
+  const { theme, themeMode, setThemeMode, toggleTheme, accentColor, setAccentColor, customHex, setCustomColor, bgStyle, setBgStyle, soundEffects, setSoundEffects, ACCENT_PRESETS } = useTheme();
   const [activeTab, setActiveTab] = useState(initialTab === 'appearance' ? 'themes' : initialTab);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
 
@@ -328,47 +328,97 @@ export default function AppSettingsModal({ onClose, initialTab = 'themes' }) {
 
               {/* Theme Mode Toggle Box */}
               <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex', flexDirection: 'column', gap: '12px',
                 padding: '16px', background: 'var(--bg-header)', borderRadius: '12px',
                 border: '1px solid var(--border-color)'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  {theme === 'dark' ? <Moon size={22} color="var(--accent-green)" /> : <Sun size={22} color="var(--accent-green)" />}
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>Theme Mode</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      {theme === 'dark' ? 'Midnight Dark' : 'Cream Light Theme'}
-                    </div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600 }}>Theme Mode</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                    {themeMode === 'system'
+                      ? `System Auto (${theme === 'dark' ? 'Dark' : 'Light'})`
+                      : themeMode === 'dark'
+                      ? 'Midnight Dark'
+                      : 'Cream Light'}
                   </div>
                 </div>
 
-                <button
-                  onClick={toggleTheme}
-                  style={{
-                    position: 'relative',
-                    width: '52px', height: '28px',
-                    borderRadius: '14px',
-                    border: 'none',
-                    background: theme === 'dark' ? 'var(--accent-green)' : '#d1d7db',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s ease',
-                    padding: 0,
-                  }}
-                >
-                  <div style={{
-                    position: 'absolute',
-                    top: '3px',
-                    left: theme === 'dark' ? '27px' : '3px',
-                    width: '22px', height: '22px',
-                    borderRadius: '50%',
-                    background: theme === 'dark' ? 'var(--accent-contrast-text, #ffffff)' : '#ffffff',
-                    transition: 'left 0.2s ease',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                  }} />
-                </button>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setThemeMode('system')}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justify: 'center',
+                      gap: '6px',
+                      padding: '10px 8px',
+                      borderRadius: '8px',
+                      background: themeMode === 'system' ? 'var(--bg-active)' : 'var(--bg-input)',
+                      border: themeMode === 'system' ? '1.5px solid var(--accent-green)' : '1px solid var(--border-color)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      width: '100%',
+                    }}
+                  >
+                    <Laptop size={18} color={themeMode === 'system' ? 'var(--accent-green)' : 'var(--text-secondary)'} />
+                    <span style={{ fontSize: '12px', fontWeight: themeMode === 'system' ? 600 : 500, color: themeMode === 'system' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                      System (Auto)
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setThemeMode('dark')}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justify: 'center',
+                      gap: '6px',
+                      padding: '10px 8px',
+                      borderRadius: '8px',
+                      background: themeMode === 'dark' ? 'var(--bg-active)' : 'var(--bg-input)',
+                      border: themeMode === 'dark' ? '1.5px solid var(--accent-green)' : '1px solid var(--border-color)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      width: '100%',
+                    }}
+                  >
+                    <Moon size={18} color={themeMode === 'dark' ? 'var(--accent-green)' : 'var(--text-secondary)'} />
+                    <span style={{ fontSize: '12px', fontWeight: themeMode === 'dark' ? 600 : 500, color: themeMode === 'dark' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                      Dark
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setThemeMode('light')}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justify: 'center',
+                      gap: '6px',
+                      padding: '10px 8px',
+                      borderRadius: '8px',
+                      background: themeMode === 'light' ? 'var(--bg-active)' : 'var(--bg-input)',
+                      border: themeMode === 'light' ? '1.5px solid var(--accent-green)' : '1px solid var(--border-color)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      width: '100%',
+                    }}
+                  >
+                    <Sun size={18} color={themeMode === 'light' ? 'var(--accent-green)' : 'var(--text-secondary)'} />
+                    <span style={{ fontSize: '12px', fontWeight: themeMode === 'light' ? 600 : 500, color: themeMode === 'light' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                      Light
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              {/* Orientation Lock Toggle Box */}
+              {/* Message Sound Effects Toggle Box */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '16px', background: 'var(--bg-header)', borderRadius: '12px',
@@ -376,42 +426,27 @@ export default function AppSettingsModal({ onClose, initialTab = 'themes' }) {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                      <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                    </svg>
+                    {soundEffects ? (
+                      <Volume2 size={20} color="var(--accent-green)" />
+                    ) : (
+                      <VolumeX size={20} color="var(--text-secondary)" />
+                    )}
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>Orientation Lock</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>Message Sound Effects</div>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                      {orientationLock ? 'Locked to Portrait Mode' : 'Follows Device Orientation'}
+                      {soundEffects ? 'Audio feedback when sending & receiving messages' : 'Muted'}
                     </div>
                   </div>
                 </div>
 
                 <button
-                  onClick={() => setOrientationLock(!orientationLock)}
-                  style={{
-                    position: 'relative',
-                    width: '52px', height: '28px',
-                    borderRadius: '14px',
-                    border: 'none',
-                    background: orientationLock ? 'var(--accent-green)' : '#d1d7db',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s ease',
-                    padding: 0,
-                  }}
+                  type="button"
+                  className={`relay-toggle ${soundEffects ? 'active' : ''}`}
+                  aria-checked={soundEffects}
+                  onClick={() => setSoundEffects(!soundEffects)}
                 >
-                  <div style={{
-                    position: 'absolute',
-                    top: '3px',
-                    left: orientationLock ? '27px' : '3px',
-                    width: '22px', height: '22px',
-                    borderRadius: '50%',
-                    background: orientationLock ? 'var(--accent-contrast-text, #ffffff)' : '#ffffff',
-                    transition: 'left 0.2s ease',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                  }} />
+                  <div className="relay-toggle-knob" />
                 </button>
               </div>
 

@@ -1,27 +1,39 @@
 {
   "id": "/",
-  "name": "Relay for Desktop",
+  "name": "Relay",
   "short_name": "Relay",
   "description": "Real-Time Encrypted Messaging Platform",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "window-controls-overlay", "minimal-ui"],
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "/quality_restoration_20260724180021934.JPEG",
+      "src": "/relay-icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/quality_restoration_20260724180021934.JPEG",
+      "src": "/relay-icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/relay-icon-192-dark.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/relay-icon-512-dark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

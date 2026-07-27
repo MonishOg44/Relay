@@ -1,4 +1,4 @@
-const CACHE_NAME = 'relay-pwa-v2';
+const CACHE_NAME = 'relay-pwa-v3';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -52,10 +52,13 @@ self.addEventListener('push', (event) => {
     const title = data.title || 'New Notification';
     const options = {
       body: data.body || '',
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: '/relay-icon-512-dark.png',
+      badge: '/relay-icon-192-dark.png',
       data: data.data || {},
-      vibrate: [200, 100, 200]
+      vibrate: [200, 100, 200],
+      tag: data.tag || 'relay-notification',
+      renotify: true,
+      actions: data.actions || [],
     };
 
     event.waitUntil(

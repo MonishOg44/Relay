@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
 import { supabase, isSupabaseConfigured } from '../../lib/supabaseClient';
-import { X, Activity, Clock, MessageSquare, Zap, RotateCcw, Users } from 'lucide-react';
+import { X, Activity, MessageSquare, Zap, Users } from 'lucide-react';
 
 export default function ChatAnalyticsModal({ onClose }) {
   const { profile } = useAuth();
@@ -20,78 +20,8 @@ export default function ChatAnalyticsModal({ onClose }) {
   });
   const [statsLoading, setStatsLoading] = useState(true);
 
-  // ── Screen time from backend ────────────────────────────────────
-  const [sessionSeconds, setSessionSeconds] = useState(0);
-  const [timeLoading, setTimeLoading] = useState(true);
-  const accumulatedRef = useRef(0);
-  const syncTimerRef = useRef(null);
-
   // ── Tooltip state ───────────────────────────────────────────────
   const [hoveredPoint, setHoveredPoint] = useState(null);
-
-  // Load screen time from Supabase on mount
-  useEffect(() => {
-    if (!profile?.id || !supabase) { setTimeLoading(false); return; }
-
-    async function loadScreenTime() {
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const { data } = await supabase
-          .from('user_daily_usage')
-          .select('screen_time_seconds')
-          .eq('user_id', profile.id)
-          .eq('date', today)
-          .maybeSingle();
-
-        const saved = data?.screen_time_seconds ?? 0;
-        setSessionSeconds(saved);
-        accumulatedRef.current = saved;
-      } catch {
-        // table may not exist yet — start from 0
-      } finally {
-        setTimeLoading(false);
-      }
-    }
-    loadScreenTime();
-  }, [profile?.id]);
-
-  // Live timer
-  useEffect(() => {
-    const tick = setInterval(() => {
-      accumulatedRef.current += 1;
-      setSessionSeconds((p) => p + 1);
-    }, 1000);
-    return () => clearInterval(tick);
-  }, []);
-
-  // Sync screen time to Supabase every 30 seconds + on unmount
-  useEffect(() => {
-    if (!profile?.id || !supabase) return;
-
-    const syncToBackend = async () => {
-      if (!isSupabaseConfigured) return;
-      const today = new Date().toISOString().split('T')[0];
-      try {
-        await supabase.from('user_daily_usage').upsert(
-          {
-            user_id: profile.id,
-            date: today,
-            screen_time_seconds: accumulatedRef.current,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,date' }
-        );
-      } catch {
-        // silent
-      }
-    };
-
-    syncTimerRef.current = setInterval(syncToBackend, 30000);
-    return () => {
-      clearInterval(syncTimerRef.current);
-      syncToBackend(); // save on close
-    };
-  }, [profile?.id]);
 
   // Fetch all analytics from backend
   const fetchMetrics = useCallback(async () => {
@@ -190,13 +120,6 @@ export default function ChatAnalyticsModal({ onClose }) {
   }, [fetchMetrics]);
 
   // ── Helpers ─────────────────────────────────────────────────────
-  const formatSeconds = (secs) => {
-    const hrs = Math.floor(secs / 3600);
-    const mins = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
-    return `${hrs.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`;
-  };
-
   const formatResponseTime = (secs) => {
     if (secs === null) return '—';
     if (secs < 60) return `${secs}s`;
@@ -204,19 +127,6 @@ export default function ChatAnalyticsModal({ onClose }) {
     return `${(secs / 3600).toFixed(1)}h`;
   };
 
-  const handleResetSession = async () => {
-    setSessionSeconds(0);
-    accumulatedRef.current = 0;
-    if (profile?.id && supabase) {
-      const today = new Date().toISOString().split('T')[0];
-      try {
-        await supabase.from('user_daily_usage').upsert(
-          { user_id: profile.id, date: today, screen_time_seconds: 0, updated_at: new Date().toISOString() },
-          { onConflict: 'user_id,date' }
-        );
-      } catch { /* silent */ }
-    }
-  };
 
   // ── SVG chart math ───────────────────────────────────────────────
   const maxCount = Math.max(...stats.weeklyData.map((d) => d.count), 1);
@@ -270,35 +180,13 @@ export default function ChatAnalyticsModal({ onClose }) {
           </div>
           <div>
             <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-              Screen Time &amp; Analytics
+              Chat Analytics
             </h3>
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>App usage metrics</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Messaging metrics & insights</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-          {/* Screen Time Card */}
-          <div style={{ background: 'var(--bg-header)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-green)', letterSpacing: '0.8px', marginBottom: '4px' }}>
-                Today's Screen Time
-              </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
-                {timeLoading ? '——' : formatSeconds(sessionSeconds)}
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                Active session for {profile?.username || 'User'}
-              </div>
-            </div>
-            <button
-              onClick={handleResetSession}
-              title="Reset Session Timer"
-              style={{ background: 'var(--bg-sidebar)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', borderRadius: '8px', padding: '7px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
-            >
-              <RotateCcw size={13} /> Reset
-            </button>
-          </div>
 
           {/* Quick Metrics Grid */}
           <div className="analytics-quick-grid" style={{ gap: '10px' }}>

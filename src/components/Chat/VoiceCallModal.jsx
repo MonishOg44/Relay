@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Phone, PhoneOff, Mic, MicOff, Volume2, Minimize2, Maximize2, Video, VideoOff } from 'lucide-react';
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, Minimize2, Maximize2, Video, VideoOff } from 'lucide-react';
 import { useVoiceCall } from '../../context/VoiceCallContext';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function VoiceCallModal() {
-  const { callState, callType, callPartner, isMuted, localStream, remoteStream, formattedDuration, acceptCall, rejectCall, endCall, toggleMute } = useVoiceCall();
+  const { callState, callType, callPartner, isMuted, isSpeaker, localStream, remoteStream, formattedDuration, acceptCall, rejectCall, endCall, toggleMute, toggleSpeaker } = useVoiceCall();
   const { theme } = useTheme();
   const [isMinimized, setIsMinimized] = useState(false);
   const [pos, setPos] = useState({ x: -1, y: 16 });
@@ -152,9 +152,14 @@ export default function VoiceCallModal() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
           {callState === 'connected' && (
-            <button type="button" onClick={toggleMute} style={{ width: '32px', height: '32px', borderRadius: '50%', background: isMuted ? 'rgba(239, 68, 68, 0.15)' : 'transparent', border: 'none', color: isMuted ? '#ef4444' : 'var(--text-primary)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
-              {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
-            </button>
+            <>
+              <button type="button" onClick={toggleSpeaker} style={{ width: '32px', height: '32px', borderRadius: '50%', background: isSpeaker ? 'rgba(16, 185, 129, 0.15)' : 'transparent', border: 'none', color: isSpeaker ? '#10b981' : 'var(--text-primary)', display: 'grid', placeItems: 'center', cursor: 'pointer' }} title={isSpeaker ? 'Switch to Earpiece' : 'Switch to Speaker'}>
+                {isSpeaker ? <Volume2 size={16} /> : <VolumeX size={16} />}
+              </button>
+              <button type="button" onClick={toggleMute} style={{ width: '32px', height: '32px', borderRadius: '50%', background: isMuted ? 'rgba(239, 68, 68, 0.15)' : 'transparent', border: 'none', color: isMuted ? '#ef4444' : 'var(--text-primary)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
+                {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+              </button>
+            </>
           )}
           <button type="button" onClick={endCall} style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ef4444', border: 'none', color: '#fff', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
             <PhoneOff size={14} />
@@ -204,6 +209,9 @@ export default function VoiceCallModal() {
               </>
             ) : (
               <>
+                <button type="button" onClick={toggleSpeaker} style={{ width: '56px', height: '56px', borderRadius: '50%', background: isSpeaker ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center' }} title={isSpeaker ? 'Switch to Earpiece' : 'Switch to Speaker'}>
+                  {isSpeaker ? <Volume2 size={24} /> : <VolumeX size={24} />}
+                </button>
                 <button type="button" onClick={toggleMute} style={{ width: '56px', height: '56px', borderRadius: '50%', background: isMuted ? 'rgba(239, 68, 68, 0.9)' : 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
                   {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
                 </button>
@@ -246,6 +254,9 @@ export default function VoiceCallModal() {
             </div>
           ) : (
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="button" onClick={toggleSpeaker} style={{ width: '48px', height: '48px', borderRadius: '50%', background: isSpeaker ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-input)', border: isSpeaker ? '1px solid #10b981' : '1px solid var(--border-color)', color: isSpeaker ? '#10b981' : 'var(--text-primary)', cursor: 'pointer', display: 'grid', placeItems: 'center', transition: 'all 0.15s ease' }} title={isSpeaker ? 'Switch to Earpiece' : 'Switch to Speaker'}>
+                {isSpeaker ? <Volume2 size={20} /> : <VolumeX size={20} />}
+              </button>
               <button type="button" onClick={toggleMute} style={{ width: '48px', height: '48px', borderRadius: '50%', background: isMuted ? 'rgba(239, 68, 68, 0.15)' : 'var(--bg-input)', border: isMuted ? '1px solid #ef4444' : '1px solid var(--border-color)', color: isMuted ? '#ef4444' : 'var(--text-primary)', cursor: 'pointer', display: 'grid', placeItems: 'center', transition: 'all 0.15s ease' }} title={isMuted ? 'Unmute' : 'Mute'}>
                 {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
               </button>

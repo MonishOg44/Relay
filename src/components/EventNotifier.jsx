@@ -58,7 +58,7 @@ export default function EventNotifier({ children }) {
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(`Relay Calendar: ${ev.title}`, {
               body: `Your scheduled ${ev.event_type.toLowerCase()} is starting now!`,
-              icon: '/quality_restoration_20260724180021934.JPEG'
+              icon: '/relay-icon-192.png'
             });
           } else {
             // Fallback in-app alert if permissions denied or not supported

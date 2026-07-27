@@ -25,6 +25,8 @@ import ArchiveModal from './components/Modals/ArchiveModal';
 import SubscriptionsModal from './components/Modals/SubscriptionsModal';
 import PwaInstallModal from './components/ui/PwaInstallModal';
 import EventNotifier from './components/EventNotifier';
+import InAppNotification from './components/InAppNotification';
+import { PushService } from './lib/PushService';
 import { MessageSquare, Phone, Settings, Sparkles, UserPlus, Grid2X2, X } from 'lucide-react';
 
 const customNavToggle = (isOpen) => (
@@ -243,6 +245,13 @@ function MainLayout() {
     setIntroComplete(true);
   }, []);
 
+  // Auto-subscribe to push notifications if permission was previously granted
+  React.useEffect(() => {
+    if (user?.id && 'Notification' in window && Notification.permission === 'granted') {
+      PushService.subscribeToPush(user.id).catch(() => {});
+    }
+  }, [user?.id]);
+
   if (!introComplete) {
     return <IntroAnimation onComplete={handleIntroComplete} />;
   }
@@ -325,6 +334,7 @@ function MainLayout() {
           <PwaInstallModal />
         )}
         <VoiceCallModal />
+        <InAppNotification />
       </ChatProvider>
     </VoiceCallProvider>
   );
