@@ -70,9 +70,9 @@ export default function PwaInstallModal({ forceShow = false, onClose }) {
   if (isStandalone || !visible) return null;
 
   return (
-    <div className="modal-overlay animate-fade-in" style={{ zIndex: 4000 }}>
+    <div className="modal-overlay pwa-modal-overlay animate-fade-in" style={{ zIndex: 4000 }}>
       <div
-        className="modal-card animate-fade-in-up"
+        className="modal-card pwa-install-card animate-fade-in-up"
         style={{
           maxWidth: '440px',
           width: '92%',
