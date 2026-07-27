@@ -105,6 +105,8 @@ html, body, #root {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  /* Prevent iOS elastic overscroll from propagating to background elements */
+  overscroll-behavior: none;
 }
 
 body {
@@ -251,6 +253,7 @@ body {
   flex-shrink: 0;
   height: 100%;
   animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overscroll-behavior: none;
 }
 .sidebar-header {
   position: relative;
@@ -335,7 +338,7 @@ body {
 .filter-tab:hover:not(.active) { background: var(--bg-hover); }
 
 /* Chat List */
-.chat-list { flex: 1; overflow-y: auto; }
+.chat-list { flex: 1; overflow-y: auto; overscroll-behavior: none; }
 .chat-item {
   display: flex;
   align-items: center;
@@ -791,23 +794,12 @@ body {
 .auth-btn:hover { background: var(--accent-green-hover); }
 .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-html.modal-open {
-  overflow: hidden !important;
-  height: 100% !important;
-  position: fixed !important;
-  width: 100% !important;
-}
+html.modal-open,
 body.modal-open {
   overflow: hidden !important;
   height: 100% !important;
   touch-action: none !important;
   overscroll-behavior: none !important;
-  -webkit-overflow-scrolling: auto !important;
-  position: fixed !important;
-  width: 100% !important;
-  /* Prevent scroll position jump by preserving scroll */
-  left: 0;
-  right: 0;
 }
 
 .modal-overlay {
@@ -1008,6 +1000,29 @@ body.modal-open {
 
   .messages-area {
     padding: 12px 8px !important;
+    padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 80px)) !important;
+  }
+
+  /* === iOS SAFE AREA FIXES === */
+
+  /* Chat header: push down below status bar/notch on iOS */
+  .chat-header {
+    padding-top: env(safe-area-inset-top) !important;
+    height: calc(var(--header-height) + env(safe-area-inset-top)) !important;
+    min-height: calc(var(--header-height) + env(safe-area-inset-top)) !important;
+    align-items: flex-end !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Sidebar header: same treatment */
+  .sidebar-header {
+    padding-top: calc(env(safe-area-inset-top) + 10px) !important;
+    min-height: calc(46px + env(safe-area-inset-top)) !important;
+  }
+
+  /* Chat input: clear gap above iOS home indicator */
+  .chat-input-area {
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
   }
 
   /* Hide scrollbar entirely on mobile to match WhatsApp */

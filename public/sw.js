@@ -1,4 +1,4 @@
-const CACHE_NAME = 'relay-pwa-v3';
+const CACHE_NAME = 'relay-pwa-v4';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -42,6 +42,9 @@ self.addEventListener('fetch', (event) => {
 
 // ==========================================
 // PUSH NOTIFICATIONS
+// Only fires when app is fully CLOSED (no windows open at all).
+// When the app is open (even backgrounded/minimized), the React app
+// uses navigator.serviceWorker.ready.then(reg.showNotification()) directly.
 // ==========================================
 
 self.addEventListener('push', (event) => {
@@ -63,31 +66,33 @@ self.addEventListener('push', (event) => {
     data: data.data || {},
     vibrate: data.vibrate || [200, 100, 200],
     tag: data.tag || 'relay-notification',
-    renotify: true,
+    renotify: data.renotify !== undefined ? data.renotify : true,
     requireInteraction: data.requireInteraction || false,
     actions: data.actions || [],
   };
 
   event.waitUntil(
-    // Check if any app window is currently open and focused
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Find any window that is currently focused and visible
-      const focusedClient = windowClients.find(
-        (c) => c.focused === true && c.visibilityState === 'visible'
-      );
-
-      if (focusedClient) {
-        // App is open and in focus — send push data to the app directly.
-        // The React app will show its own in-app toast. Skip the native notification.
-        focusedClient.postMessage({
-          type: 'PUSH_WHILE_FOCUSED',
-          payload: data,
-        });
-        return; // DO NOT show native notification
+      // If ANY window is open (focused or backgrounded), the React app handles notifications.
+      // The React code uses reg.showNotification() directly — faster and more reliable.
+      // We only need to show here when there are absolutely no open windows (app fully closed).
+      if (windowClients.length > 0) {
+        // App window exists — just forward to any focused client for in-app toast
+        const focusedClient = windowClients.find(
+          (c) => c.focused === true && c.visibilityState === 'visible'
+        );
+        if (focusedClient) {
+          focusedClient.postMessage({
+            type: 'PUSH_WHILE_FOCUSED',
+            payload: data,
+          });
+        }
+        // If window exists but not focused, React's visibility change listener handles it.
+        // Don't show a duplicate native notification here.
+        return;
       }
 
-      // No focused window — app is backgrounded or closed.
-      // Show the native OS notification.
+      // No windows at all — app is fully closed. Show native push notification.
       return self.registration.showNotification(title, options);
     })
   );
@@ -100,14 +105,14 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Check if there is already a window/tab open with the target URL
+      // Focus existing window if available
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
         if (client.url.includes(urlToOpen) && 'focus' in client) {
           return client.focus();
         }
       }
-      // If not, open a new window
+      // Otherwise open a new window
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }

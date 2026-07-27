@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, X, Plus, Shield, MessageSquare, UserCheck, Phone, Check, Trash2, LogOut } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useVoiceCall } from '../../context/VoiceCallContext';
@@ -16,6 +16,16 @@ export default function GroupsModal({ onClose, initialCreate = false }) {
     type: 'danger',
     onConfirm: () => {},
   });
+
+  // Lock background scroll whenever this modal is mounted (works even when opened from Sidebar)
+  useEffect(() => {
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
+    return () => {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    };
+  }, []);
 
   const [showCreate, setShowCreate] = useState(initialCreate);
   const [newGroupName, setNewGroupName] = useState('');

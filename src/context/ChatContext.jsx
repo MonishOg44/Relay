@@ -273,13 +273,26 @@ export const ChatProvider = ({ children }) => {
             const senderName = requesterProfile?.username || 'Someone';
             const senderAvatar = requesterProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${payload.new.requester_id}`;
             
-            // Always show in-app toast when visible; background notifications go through SW push
-            showInAppNotification({
-              senderId: payload.new.requester_id,
-              senderName,
-              senderAvatar,
-              content: '👋 Sent you a friend request!',
-            });
+            // Show in-app toast when visible; use SW for background notifications
+            if (document.visibilityState === 'visible') {
+              showInAppNotification({
+                senderId: payload.new.requester_id,
+                senderName,
+                senderAvatar,
+                content: '👋 Sent you a friend request!',
+              });
+            } else if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+              navigator.serviceWorker.ready.then((reg) => {
+                reg.showNotification(`Friend Request from ${senderName}`, {
+                  body: `${senderName} wants to connect with you on Relay`,
+                  icon: senderAvatar,
+                  badge: '/relay-icon-192-dark.png',
+                  tag: `relay-friend-req-${payload.new.requester_id}`,
+                  data: { url: '/' },
+                  vibrate: [200, 100, 200],
+                });
+              }).catch(() => {});
+            }
           }
         }
       )
@@ -522,8 +535,20 @@ export const ChatProvider = ({ children }) => {
                     senderAvatar,
                     content: newMsg.content,
                   });
+                } else if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+                  // App is backgrounded — use SW showNotification (reliable, works on iOS PWA too)
+                  navigator.serviceWorker.ready.then((reg) => {
+                    reg.showNotification(senderName, {
+                      body: newMsg.content,
+                      icon: senderAvatar,
+                      badge: '/relay-icon-192-dark.png',
+                      tag: `relay-msg-${newMsg.sender_id}`,
+                      data: { url: '/' },
+                      vibrate: [200, 100, 200],
+                      renotify: true,
+                    });
+                  }).catch(() => {});
                 }
-                // Background notifications are handled by the push SW via the Edge Function
               }
             } else if (activeUser?.id === newMsg.receiver_id) {
               // Message sent by self - de-duplicate with optimistic state smoothly

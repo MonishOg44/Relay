@@ -160,7 +160,20 @@ export const VoiceCallProvider = ({ children }) => {
           setCallPartner(caller);
           setCallType(signalData?.callType || 'audio');
           setCallState('incoming');
-          // Background call notifications are handled by the SW push via notify-call Edge Function
+          // Show system notification when app is backgrounded
+          if (document.visibilityState === 'hidden' && 'serviceWorker' in navigator && Notification.permission === 'granted') {
+            navigator.serviceWorker.ready.then((reg) => {
+              reg.showNotification(`Incoming ${signalData?.callType === 'video' ? 'Video' : 'Voice'} Call`, {
+                body: `${caller?.username || 'Someone'} is calling you on Relay...`,
+                icon: caller?.avatar_url || '/relay-icon-192.png',
+                badge: '/relay-icon-192-dark.png',
+                tag: 'relay-incoming-call',
+                requireInteraction: true,
+                vibrate: [300, 100, 300, 100, 300],
+                data: { url: '/' },
+              });
+            }).catch(() => {});
+          }
         } else if (type === 'call-accept') {
           // Callee accepted call -> create WebRTC Offer
           if (callState === 'calling') {

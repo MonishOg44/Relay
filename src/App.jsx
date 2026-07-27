@@ -178,9 +178,28 @@ function MainContent({
   menuItems,
   socialItems,
 }) {
-  const { activeUser } = useChat();
+  const { activeUser, setActiveUser } = useChat();
   const [activeNav, setActiveNav] = useState('chats');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // ── Back gesture support (iOS swipe-back, Android back, Mac trackpad, Windows back button) ──
+  useEffect(() => {
+    if (activeUser) {
+      // Push a fake history entry so the OS back gesture has something to pop
+      window.history.pushState({ relay_chat: activeUser.id }, '', window.location.href);
+    }
+  }, [activeUser?.id]);
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      // If we're viewing a chat, intercept back gesture and go to chat list
+      if (activeUser) {
+        setActiveUser(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeUser, setActiveUser]);
 
   return (
     <div className={`app-shell ${isMenuOpen ? 'is-menu-open' : ''} ${activeUser ? 'has-active-chat' : 'no-active-chat'}`}>

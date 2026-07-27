@@ -7,6 +7,16 @@ export default function FavouritesModal({ onClose }) {
   const { profile } = useAuth();
   const { users, setActiveUser } = useChat();
 
+  // Lock background scroll whenever this modal is mounted (works even when opened from Sidebar)
+  useEffect(() => {
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
+    return () => {
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+    };
+  }, []);
+
   const [activeTab, setActiveTab] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
